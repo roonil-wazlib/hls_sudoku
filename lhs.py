@@ -1,6 +1,7 @@
 from sudoku_classes import *
 from generate_sudoku import *
 import random
+import copy
 
 #concept
 
@@ -93,19 +94,45 @@ def build_game(num_blank):
     sudoku_ls = generate_unshuffled_3d_board()
     
     #generate initial coordinate values, and subcube reference
-    subcube_indices = generate_subcube_indices()
-    available_coordinates = generate_available_coordinates()
+    subcube_indices = get_subcube_indices()
+    available_coordinates = get_available_coordinates()
     
     #generate blank game that we will slowly populate
     #since we know the optimal solution has well over half the squares blank, it is faster to populate than to unpopulate
     #evenly distributing populated squares is the same as evenly distributing unpopulated squares
     game = get_blank_game()
     
+    num_selected = 0
+    #keeps track of the number of times we've looped
+    count = 0
+    
+    while num_selected < 729 - num_blank:
+        
+        coordinates_this_loop = copy.deepcopy(available_coordinates)
+        #loop through subcubes
+        for item in order_generator(subcube_indices):
+            x = list(item[0].union(coordinates_this_loop[0]))[0]
+            y = list(item[1].union(coordinates_this_loop[1]))[0]
+            z = list(item[2].union(coordinates_this_loop[2]))[0]
+            
+            print(item[0].union(coordinates_this_loop[0]))
+            print(x, y, z)
+            print(item)
+            coordinates_this_loop[0].remove(x)
+            coordinates_this_loop[1].remove(y)
+            coordinates_this_loop[2].remove(z)
+            
+            game[x][y][z] = ""
+            
+            num_selected += 1
+            
+    
+    return game
     
 
 
 def main():
-    build_game(500)
+    print(build_game(500))
 
 
 main()
