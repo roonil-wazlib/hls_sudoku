@@ -1,3 +1,7 @@
+from sudoku_classes import *
+from generate_sudoku import *
+
+
 #concept
 
 
@@ -20,5 +24,27 @@
 #Not quite latin hypercube sampling - can only ever manage an approximation because of the subsquare 
 #property of Sudoku boards meaning that our variables are not all mutually independent.
 
-#should still guarantee as even a distribution as can be hoped for (even defined by how many spaces are
+#should still guarantee as even a distribution as can be hoped for ('even' defined by how many spaces are
 #'adjacent' to each other in Sudoku terms, not by physical distance measures)
+
+
+
+
+
+def main():
+    sudoku_ls = generate_unshuffled_3d_board()
+    
+    #generate dictionary of possible coordinate values for each subcube
+    remaining_indices = {}
+    for i in range(3):
+        for j in range(3):
+            for k in range(3):
+                z_coords = {3*i, 3*i+1, 3*i+2}
+                y_coords = {3*j, 3*j+1, 3*j+2}
+                x_coords = {3*k, 3*k+1, 3*k+2}
+                remaining_indices[9*i + 3*j + k] = [x_coords, y_coords, z_coords]
+                
+    print(remaining_indices)
+    
+    
+main()
