@@ -111,18 +111,18 @@ def build_game(num_blank):
         coordinates_this_loop = copy.deepcopy(available_coordinates)
         #loop through subcubes
         for item in order_generator(subcube_indices):
-            x = list(item[0].union(coordinates_this_loop[0]))[0]
-            y = list(item[1].union(coordinates_this_loop[1]))[0]
-            z = list(item[2].union(coordinates_this_loop[2]))[0]
+            x = list(item[0].intersection(coordinates_this_loop[0]))
+            y = list(item[1].intersection(coordinates_this_loop[1]))
+            z = list(item[2].intersection(coordinates_this_loop[2]))
             
-            print(item[0].union(coordinates_this_loop[0]))
+            print(coordinates_this_loop)
             print(x, y, z)
-            print(item)
-            coordinates_this_loop[0].remove(x)
-            coordinates_this_loop[1].remove(y)
-            coordinates_this_loop[2].remove(z)
             
-            game[x][y][z] = ""
+            coordinates_this_loop[0].remove(x[0])
+            coordinates_this_loop[1].remove(y[0])
+            coordinates_this_loop[2].remove(z[0])
+            
+            game[x[0]][y[0]][z[0]] = ""
             
             num_selected += 1
             
