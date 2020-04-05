@@ -27,7 +27,9 @@ import random
 #should still guarantee as even a distribution as can be hoped for ('even' defined by how many spaces are
 #'adjacent' to each other in Sudoku terms, not by physical distance measures)
 
-def determine_subsquare_order(available_indices):
+
+
+def order_generator(available_indices):
     """randomly determine order of subsquares from which we will remove elements"""
     order = list(range(27))
     random.shuffle(order)
@@ -36,8 +38,13 @@ def determine_subsquare_order(available_indices):
         yield available_indices[subcube]
         
 
-def generate_available_indices():
-    """generate dictionary of possible coordinate values for each subcube"""
+
+def get_subcube_indices():
+    """
+    Generate dictionary of possible coordinate values for each subcube.
+    Used as a reference point for determining the subset of coordinates we can
+    choose from at each stage.
+    """
     remaining_indices = {}
     for i in range(3):
         for j in range(3):
@@ -50,10 +57,55 @@ def generate_available_indices():
     return remaining_indices
 
 
-def main():
+
+def get_available_coordinates():
+    """
+    Generate available coordinate values for overall cube, in form
+       coordinates = [{x_coords}, {y_coords}, {z_coords}]
+       
+    Part used for latin hypercube sampling aspect of algorithm.
+    """
+    
+    coordinates = []
+    for _ in range(3):
+        coordinates.append(set(range(9)))
+        
+    return coordinates
+
+
+def get_blank_game():
+    """build a blank game to be populated overtime"""
+    game = []
+    for _ in range(9):
+        plane = []
+        for _ in range(9):
+            plane.append([0] * 9)
+        game.append(plane)
+        
+    return game
+
+
+def build_game(num_blank):
+    """generate a game of Sudoku with num_blank blank squares, evenly distributed about the board."""
+    
+    #since all boards isomorphic to a uniquely solvable game should also be uniquely solvable (??),
+    #we need only check the ordered case
     sudoku_ls = generate_unshuffled_3d_board()
     
-    available_indices = generate_available_indices()
+    #generate initial coordinate values, and subcube reference
+    subcube_indices = generate_subcube_indices()
+    available_coordinates = generate_available_coordinates()
+    
+    #generate blank game that we will slowly populate
+    #since we know the optimal solution has well over half the squares blank, it is faster to populate than to unpopulate
+    #evenly distributing populated squares is the same as evenly distributing unpopulated squares
+    game = get_blank_game()
+    
+    
+
+
+def main():
+    build_game(500)
 
 
 main()
