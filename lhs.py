@@ -1,6 +1,6 @@
 from sudoku_classes import *
 from generate_sudoku import *
-
+import random
 
 #concept
 
@@ -27,14 +27,17 @@ from generate_sudoku import *
 #should still guarantee as even a distribution as can be hoped for ('even' defined by how many spaces are
 #'adjacent' to each other in Sudoku terms, not by physical distance measures)
 
-
-
-
-
-def main():
-    sudoku_ls = generate_unshuffled_3d_board()
+def determine_subsquare_order(available_indices):
+    """randomly determine order of subsquares from which we will remove elements"""
+    order = list(range(27))
+    random.shuffle(order)
     
-    #generate dictionary of possible coordinate values for each subcube
+    for subcube in order:
+        yield available_indices[subcube]
+        
+
+def generate_available_indices():
+    """generate dictionary of possible coordinate values for each subcube"""
     remaining_indices = {}
     for i in range(3):
         for j in range(3):
@@ -44,7 +47,13 @@ def main():
                 x_coords = {3*k, 3*k+1, 3*k+2}
                 remaining_indices[9*i + 3*j + k] = [x_coords, y_coords, z_coords]
                 
-    print(remaining_indices)
+    return remaining_indices
+
+
+def main():
+    sudoku_ls = generate_unshuffled_3d_board()
     
-    
+    available_indices = generate_available_indices()
+
+
 main()
