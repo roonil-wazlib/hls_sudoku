@@ -3,32 +3,6 @@ from generate_sudoku import *
 import random
 import copy
 
-#concept
-
-
-#consider each of the subcubes in some random but fixed order (rerandomised each iteration)
-
-#for each cube, randomly take a point, and after it is chosen remove it's x,y,z coordinate from
-#relevant sets containing partitioned x y and z variables
-
-#proceed iteratively through remaining subcubes, but only consider points with x, y, z coordinates
-#still in relevant sets
-
-#once all subcubes have had an element selected, restore sets of x y and z values
-#rerandomise order of subcubes, and start over, now not taking any point selected from previous iteration
-
-#loop until n values selected
-
-
-
-
-#Not quite latin hypercube sampling - can only ever manage an approximation because of the subsquare 
-#property of Sudoku boards meaning that our variables are not all mutually independent.
-
-#should still guarantee as even a distribution as can be hoped for ('even' defined by how many spaces are
-#'adjacent' to each other in Sudoku terms, not by physical distance measures)
-
-
 
 def order_generator(available_indices):
     """randomly determine order of subsquares from which we will remove elements"""
@@ -38,6 +12,16 @@ def order_generator(available_indices):
     for subcube in order:
         yield available_indices[subcube]
         
+
+def index_generator(x_options, y_options, z_options):
+    """randomly determine order of (x, y, z) tuples"""
+    random.shuffle(x_options)
+    random.shuffle(y_options)
+    random.shuffle(z_options)
+    
+    tuples = [(x, y, z) for x in x_options for y in y_options for z in z_options]
+    for item in tuples:
+        yield item
 
 
 def get_subcube_indices():
@@ -108,14 +92,24 @@ def build_game(num_blank):
     #keeps track of the number of times we've looped
     count = 0
     
+    
     while num_selected < 729 - num_blank:
         
         coordinates_this_loop = copy.deepcopy(available_coordinates)
         #loop through subcubes
         for item in order_generator(subcube_indices):
-            x = list(item[0])[count % 3]
-            y = list(item[1])[count // 3]
-            z = list(item[2])[count // 9]
+            
+            x_options = list(item[0])
+            y_options = list(item[1])
+            z_options = list(item[2])
+            
+            for (x, y, z) in index_generator(x_options, y_options, z_options):
+                if (x, y, z) in coordinates_this_loop and (x, y, z) in available_coordinates:
+                    my_x = x
+                    my_y = y
+                    my_z = z
+                    break
+                    
             
             for i in range(9):
                 #discard anything that threatens this guy
@@ -132,15 +126,7 @@ def build_game(num_blank):
             if num_selected >= 729 - num_blank:
                 break
             
-        count += 1
+            count += 1
             
     
     return game
-    
-
-
-def main():
-    print(build_game(500))
-
-
-main()
