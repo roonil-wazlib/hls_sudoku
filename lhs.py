@@ -62,14 +62,16 @@ def get_subcube_indices():
 def get_available_coordinates():
     """
     Generate available coordinate values for overall cube, in form
-       coordinates = [{x_coords}, {y_coords}, {z_coords}]
+       coordinates = {(x,y,z), (x2,y2,z2)...}
        
     Part used for latin hypercube sampling aspect of algorithm.
     """
     
-    coordinates = []
-    for _ in range(3):
-        coordinates.append(set(range(9)))
+    coordinates = set()
+    for i in range(9):
+        for j in range(9):
+            for k in range(9):
+                coordinates.add((i, j, k))
         
     return coordinates
 
@@ -80,7 +82,7 @@ def get_blank_game():
     for _ in range(9):
         plane = []
         for _ in range(9):
-            plane.append([0] * 9)
+            plane.append([""] * 9)
         game.append(plane)
         
     return game
@@ -111,20 +113,26 @@ def build_game(num_blank):
         coordinates_this_loop = copy.deepcopy(available_coordinates)
         #loop through subcubes
         for item in order_generator(subcube_indices):
-            x = list(item[0].intersection(coordinates_this_loop[0]))
-            y = list(item[1].intersection(coordinates_this_loop[1]))
-            z = list(item[2].intersection(coordinates_this_loop[2]))
+            x = list(item[0])[count % 3]
+            y = list(item[1])[count // 3]
+            z = list(item[2])[count // 9]
             
-            print(coordinates_this_loop)
-            print(x, y, z)
+            for i in range(9):
+                #discard anything that threatens this guy
+                coordinates_this_loop.discard((i, y, z))
+                coordinates_this_loop.discard((x, i, z))
+                coordinates_this_loop.discard((x, y, i))
             
-            coordinates_this_loop[0].remove(x[0])
-            coordinates_this_loop[1].remove(y[0])
-            coordinates_this_loop[2].remove(z[0])
+            #remove specific point from overall coordinates. will throw error if I've messed up
+            available_coordinates.remove((x, y, z))
             
-            game[x[0]][y[0]][z[0]] = ""
+            game[x][y][z] = sudoku_ls[x][y][z]
             
             num_selected += 1
+            if num_selected >= 729 - num_blank:
+                break
+            
+        count += 1
             
     
     return game
